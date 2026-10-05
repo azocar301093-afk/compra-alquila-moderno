@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compra & Alquila | Marketplace</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --bg-strong: #eaf0f8;
+      --panel: rgba(255, 255, 255, 0.88);
+      --panel-strong: #ffffff;
+      --card: #ffffff;
+      --text: #142033;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-strong: #1d4ed8;
+      --primary-soft: #dfeaff;
+      --secondary: #8b5cf6;
+      --success: #16a34a;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --line: rgba(148, 163, 184, 0.28);
+      --shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+      --radius: 22px;
+      --sidebar-width: 270px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 30%),
+        linear-gradient(135deg, #eef4ff 0%, var(--bg) 50%, #f6f8fb 100%);
+      color: var(--text);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; border: 0; }
+    img { max-width: 100%; display: block; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(255,255,255,0.75);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(37, 99, 235, 0.7);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    textarea { min-height: 120px; resize: vertical; }
+
+    .hidden { display: none !important; }
+
+    .auth-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(37, 99, 235, 0.8));
+    }
+
+    .auth-card {
+      width: min(460px, 100%);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 25px 60px rgba(15, 23, 42, 0.35);
+      border: 1px solid rgba(255,255,255,0.28);
+      border-radius: 28px;
+      padding: 28px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      font-size: 1.45rem;
+      color: var(--primary);
+      letter-spacing: -0.04em;
+    }
+    .brand .mark {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.08);
+    }
+    .brand span { color: var(--text); }
+
+    .auth-card h1 {
+      font-size: clamp(2rem, 5vw, 2.5rem);
+      margin: 18px 0 8px;
+      letter-spacing: -0.05em;
+    }
+
+    .muted { color: var(--muted); }
+    .small { font-size: 0.82rem; }
+
+    .tab-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #edf2f7;
+      border-radius: 12px;
+      padding: 6px;
+      gap: 6px;
+      margin: 22px 0 18px;
+    }
+
+    .tab-toggle button {
+      background: transparent;
+      color: var(--muted);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    .tab-toggle .active {
+      background: white;
+      color: var(--text);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+    }
+
+    .form-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: 800;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      box-shadow: 0 14px 22px rgba(37, 99, 235, 0.28);
+    }
+    .btn-ghost {
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--primary);
+    }
+    .btn-soft {
+      background: rgba(148, 163, 184, 0.1);
+      color: var(--text);
+    }
+    .btn-danger {
+      color: white;
+      background: linear-gradient(135deg, #f97316, var(--danger));
+    }
+
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: rgba(15, 23, 42, 0.92);
+      color: white;
+      border-radius: 28px;
+      padding: 22px 18px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,.08);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sidebar .brand { color: #e7efff; }
+    .sidebar .brand span { color: white; }
+
+    .nav-stack {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .nav-btn {
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: transparent;
+      color: rgba(255,255,255,0.8);
+      font-weight: 700;
+      transition: background 0.2s ease;
+    }
+
+    .nav-btn:hover, .nav-btn.active {
+      background: rgba(255,255,255,0.08);
+      color: white;
+    }
+
+    .user-card {
+      margin-top: auto;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(37,116,255,0.9), rgba(139,92,246,0.9));
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      color: white;
+      box-shadow: 0 10px 18px rgba(37, 99, 235, 0.25);
+    }
+
+    .app-main {
+      flex: 1;
+      min-width: 0;
+      background: rgba(255,255,255,0.42);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .searchbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      max-width: 760px;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 8px 10px 8px 14px;
+    }
+
+    .searchbar input {
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      padding: 10px 6px;
+      font-size: 0.96rem;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(148,163,184,0.08);
+      color: var(--text);
+      font-size: 1.1rem;
+    }
+
+    .page {
+      padding-top: 22px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 50%, #7c3aed 100%);
+      color: white;
+      border-radius: 28px;
+      padding: clamp(22px, 4vw, 36px);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 28px 48px rgba(29, 78, 216, 0.2);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: -40px;
+      bottom: -60px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 50%;
+      filter: blur(4px);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2.2rem, 4vw, 4rem);
+      letter-spacing: -0.06em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero p {
+      margin: 10px 0 22px;
+      max-width: 620px;
+      color: rgba(255,255,255,0.82);
+      font-size: 1.02rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-search {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-search .search-field {
+      flex: 1 1 220px;
+      min-width: 180px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: white;
+    }
+
+    .hero-search .search-field::placeholder {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .hero-search select.search-field {
+      appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, white 50%), linear-gradient(135deg, white 50%, transparent 50%);
+      background-position: calc(100% - 20px) calc(1.1em), calc(100% - 14px) calc(1.1em);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 28px 0 16px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: clamp(1.5rem, 2vw, 2rem);
+      letter-spacing: -0.05em;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .chip {
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.7);
+      color: var(--muted);
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+
+    .chip.active {
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--primary-strong);
+      border-color: rgba(37, 99, 235, 0.2);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.78);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+    }
+
+    .stat-card .label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+    }
+
+    .stat-card strong {
+      font-size: clamp(1.6rem, 2vw, 2.2rem);
+      letter-spacing: -0.04em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 26px rgba(15, 23, 42, 0.06);
+    }
+
+    .media {
+      position: relative;
+      height: 190px;
+      background: linear-gradient(135deg, #dfeaff, #f6f8fb);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .media-badge {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.9);
+      color: var(--text);
+      font-size: 0.72rem;
+      font-weight: 800;
+      border: 1px solid rgba(255,255,255,0.7);
+    }
+
+    .placeholder {
+      font-size: 3rem;
+      filter: grayscale(0.1);
+    }
+
+    .card-content {
+      padding: 16px 16px 14px;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .price {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      margin: 0;
+    }
+
+    .price small {
+      font-size: 0.76rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      margin: 10px 0 6px;
+      letter-spacing: -0.02em;
+    }
+
+    .meta {
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .mini-btn {
+      border-radius: 10px;
+      padding: 9px 10px;
+      background: rgba(148, 163, 184, 0.08);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .mini-btn.primary { background: rgba(37,99,235,0.08); color: var(--primary-strong); }
+    .mini-btn.danger { background: rgba(239,68,68,0.08); color: var(--danger); }
+    .mini-btn.success { background: rgba(22,163,74,0.08); color: var(--success); }
+
+    .list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.75);
+      padding: 16px 18px;
+    }
+
+    .empty {
+      text-align: center;
+      border: 1px dashed rgba(148,163,184,0.5);
+      background: rgba(255,255,255,0.5);
+      color: var(--muted);
+      padding: 42px 20px;
+      border-radius: 18px;
+      font-weight: 700;
+    }
+
+    .panel {
+      background: rgba(255,255,255,0.84);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.04);
+      padding: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      margin-top: 18px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.58);
+      backdrop-filter: blur(8px);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      z-index: 50;
+    }
+
+    .modal-box {
+      width: min(760px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      border-radius: 26px;
+      background: white;
+      box-shadow: 0 32px 80px rgba(15, 23, 42, 0.22);
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 20px 22px 0;
+    }
+
+    .modal-head h3 {
+      margin: 0;
+      font-size: 1.5rem;
+      letter-spacing: -0.04em;
+    }
+
+    .close-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(148,163,184,0.1);
+      font-size: 1.4rem;
+      color: var(--text);
+    }
+
+    .modal-body {
+      padding: 20px 22px 22px;
+    }
+
+    .detail-layout {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 18px;
+    }
+
+    .detail-media {
+      border-radius: 18px;
+      overflow: hidden;
+      height: 350px;
+      background: linear-gradient(135deg, #dfeaff, #eef2ff);
+      display: grid;
+      place-items: center;
+    }
+
+    .detail-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .detail-price {
+      margin: 12px 0 8px;
+      font-size: clamp(2rem, 3vw, 2.8rem);
+      letter-spacing: -0.06em;
+    }
+
+    .detail-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(37,99,235,0.08);
+      color: var(--primary-strong);
+      font-weight: 800;
+      font-size: 0.72rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      background: rgba(15,23,42,0.92);
+      color: white;
+      padding: 12px 15px;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.23);
+      z-index: 100;
+      max-width: 320px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 1100px) {
+      .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .detail-layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .app-shell { flex-direction: column; }
+      .sidebar { width: 100%; }
+      .nav-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .topbar { flex-wrap: wrap; }
+      .searchbar { max-width: none; flex: 1 1 100%; }
+    }
+
+    @media (max-width: 700px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .form-grid { grid-template-columns: 1fr; }
+      .page { padding-top: 18px; }
+      .top-actions { width: 100%; justify-content: flex-end; }
+      .hero-search { flex-direction: column; }
+    }
+
+    @media (max-width: 520px) {
+      .app-main { padding: 14px; }
+      .grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .nav-stack { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="authView" class="auth-screen">
+    <div class="auth-card">
+      <div class="brand"><span class="mark"></span>Compra <span>&</span> Alquila</div>
+      <h1 id="authTitle">Entrar na plataforma</h1>
+      <p class="muted">Venda, alugue e descubra ofertas perto de você.</p>
+
+      <div class="tab-toggle">
+        <button id="loginTab" class="active" type="button">Entrar</button>
+        <button id="registerTab" type="button">Criar conta</button>
+      </div>
+
+      <form id="loginForm" class="form-stack" onsubmit="login(event)">
+        <div class="field">
+          <label for="loginEmail">E-mail</label>
+          <input id="loginEmail" type="email" placeholder="seu@email.com" required />
+        </div>
+        <div class="field">
+          <label for="loginPass">Senha</label>
+          <input id="loginPass" type="password" placeholder="••••••••" required />
+        </div>
+        <button class="btn btn-primary" type="submit">Entrar</button>
+        <div class="small muted">Demo: admin@demo.com / admin123</div>
+      </form>
+
+      <form id="registerForm" class="form-stack hidden" onsubmit="register(event)">
+        <div class="field">
+          <label for="regName">Nome completo</label>
+          <input id="regName" placeholder="Seu nome" required />
+        </div>
+        <div class="field">
+          <label for="regEmail">E-mail</label>
+          <input id="regEmail" type="email" placeholder="voce@email.com" required />
+        </div>
+        <div class="field">
+          <label for="regPhone">Celular / WhatsApp</label>
+          <input id="regPhone" placeholder="(47) 99999-0000" required />
+        </div>
+        <div class="field">
+          <label for="regPass">Senha</label>
+          <input id="regPass" type="password" minlength="6" placeholder="Mínimo 6 caracteres" required />
+        </div>
+        <button class="btn btn-primary" type="submit">Criar minha conta</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="appView" class="hidden">
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand"><span class="mark"></span>Compra <span>&</span> Alquila</div>
+
+        <nav class="nav-stack">
+          <button class="nav-btn active" data-page="home">Início</button>
+          <button class="nav-btn" data-page="buy">Comprar</button>
+          <button class="nav-btn" data-page="rent">Alugar</button>
+          <button class="nav-btn" data-page="publish">Publicar</button>
+          <button class="nav-btn" data-page="favorites">Favoritos</button>
+          <button class="nav-btn" data-page="messages">Mensagens</button>
+        </nav>
+
+        <div class="user-card">
+          <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+            <div id="sidebarAvatar" class="avatar">U</div>
+            <div style="min-width:0;">
+              <div id="sidebarUserName" style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Usuário</div>
+              <div class="small" style="opacity:0.8;">Marketplace</div>
+            </div>
+          </div>
+          <button class="btn btn-soft" type="button" onclick="logout()">Sair</button>
+        </div>
+      </aside>
+
+      <div class="app-main">
+        <header class="topbar">
+          <div class="searchbar" aria-label="Buscar">
+            <span>🔎</span>
+            <input id="globalSearch" type="text" placeholder="Buscar imóveis, veículos, eletrônicos..." />
+          </div>
+          <div class="top-actions">
+            <button class="icon-btn" type="button" title="Notificações">🔔</button>
+            <button class="icon-btn" type="button" title="Perfil" onclick="navigate('profile')">👤</button>
+          </div>
+        </header>
+
+        <main id="pageContent" class="page"></main>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="modalTitle">Detalhes</h3>
+        <button class="close-btn" type="button" onclick="closeModal()">×</button>
+      </div>
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script>
+    const STORAGE_KEY = 'compra_alquila_moderno_v2';
+    const defaultDB = {
+      users: [],
+      posts: [],
+      favorites: [],
+      messages: [],
+      nextUser: 1,
+      nextPost: 1,
+      current: null
+    };
+
+    let db = loadDB();
+
+    function loadDB() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+        const base = { ...defaultDB, ...(raw || {}) };
+        base.users = Array.isArray(base.users) ? base.users : [];
+        base.posts = Array.isArray(base.posts) ? base.posts : [];
+        base.favorites = Array.isArray(base.favorites) ? base.favorites : [];
+        base.messages = Array.isArray(base.messages) ? base.messages : [];
+        base.nextUser = Number(base.nextUser) || 1;
+        base.nextPost = Number(base.nextPost) || 1;
+        return base;
+      } catch (_) {
+        return { ...defaultDB };
+      }
+    }
+
+    function saveDB() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+        return true;
+      } catch (e) {
+        toast('Não foi possível salvar as alterações. Verifique o armazenamento do navegador.');
+        return false;
+      }
+    }
+
+    function uid() {
+      return `USR-${String(db.nextUser++).padStart(6, '0')}`;
+    }
+
+    function pid() {
+      return `PUB-${String(db.nextPost++).padStart(6, '0')}`;
+    }
+
+    function esc(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[char]));
+    }
+
+    function formatMoney(value) {
+      return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      }).format(Number(value || 0));
+    }
+
+    function toast(message) {
+      const el = document.getElementById('toast');
+      el.textContent = message;
+      el.classList.remove('hidden');
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => el.classList.add('hidden'), 2600);
+    }
+
+    function currentUser() {
+      return db.users.find(user => user.id === db.current) || null;
+    }
+
+    function emojisByCategory(category) {
+      const map = {
+        Veículos: '🚗',
+        Imóveis: '🏠',
+        Eletrônicos: '💻',
+        Móveis: '🛋️',
+        Ferramentas: '🧰',
+        Roupas: '👕',
+        Bicicletas: '🚲',
+        Outros: '📦'
+      };
+      return map[category] || '📦';
+    }
+
+    function getImageMarkup(post) {
+      if (post.image) {
+        return `<img src="${esc(post.image)}" alt="${esc(post.title)}" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'placeholder\'>${emojisByCategory(post.cat)}</div>'">`;
+      }
+      return `<div class="placeholder">${emojisByCategory(post.cat)}</div>`;
+    }
+
+    function ensureSeed() {
+      if (db.users.length) return;
+
+      db.users.push({
+        id: 'USR-000001',
+        name: 'Administrador',
+        email: 'admin@demo.com',
+        phone: '(47) 99999-0001',
+        pass: 'admin123',
+        admin: true
+      });
+
+      db.posts = [
+        {
+          id: 'PUB-000001',
+          owner: 'USR-000001',
+          type: 'sale',
+          cat: 'Veículos',
+          title: 'Toyota Corolla 2020',
+          price: 78000,
+          city: 'Balneário Camboriú - SC',
+          desc: 'Automático, excelente estado, documentação em dia e manutenção completa.',
+          image: '',
+          status: 'active',
+          created: Date.now() - 2000,
+          period: 'mês'
+        },
+        {
+          id: 'PUB-000002',
+          owner: 'USR-000001',
+          type: 'rent',
+          cat: 'Imóveis',
+          title: 'Apartamento 2 quartos',
+          price: 2500,
+          period: 'mês',
+          city: 'Balneário Camboriú - SC',
+          desc: 'Apartamento com garagem, área de lazer e localização privilegiada.',
+          image: '',
+          status: 'active',
+          created: Date.now() - 120000,
+        },
+        {
+          id: 'PUB-000003',
+          owner: 'USR-000001',
+          type: 'sale',
+          cat: 'Eletrônicos',
+          title: 'Notebook profissional',
+          price: 3200,
+          city: 'Penha - SC',
+          desc: 'Notebook em excelente estado, ideal para trabalho e estudo.',
+          image: '',
+          status: 'active',
+          created: Date.now() - 300000,
+          period: 'mês'
+        },
+        {
+          id: 'PUB-000004',
+          owner: 'USR-000001',
+          type: 'sale',
+          cat: 'Móveis',
+          title: 'Sofá 3 lugares premium',
+          price: 1500,
+          city: 'Itajaí - SC',
+          desc: 'Confortável, elegante e em ótimo estado.',
+          image: '',
+          status: 'active',
+          created: Date.now() - 600000,
+          period: 'mês'
+        }
+      ];
+
+      db.nextUser = 2;
+      db.nextPost = 5;
+      saveDB();
+    }
+
+    function showAuth(mode) {
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const loginTab = document.getElementById('loginTab');
+      const registerTab = document.getElementById('registerTab');
+      const authTitle = document.getElementById('authTitle');
+
+      loginForm.classList.toggle('hidden', mode !== 'login');
+      registerForm.classList.toggle('hidden', mode !== 'register');
+      loginTab.classList.toggle('active', mode === 'login');
+      registerTab.classList.toggle('active', mode === 'register');
+      authTitle.textContent = mode === 'login' ? 'Entrar na plataforma' : 'Criar sua conta';
+    }
+
+    function login(event) {
+      event.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const pass = document.getElementById('loginPass').value;
+      const user = db.users.find(u => u.email === email && u.pass === pass);
+
+      if (!user) {
+        toast('E-mail ou senha inválidos.');
+        return;
+      }
+
+      db.current = user.id;
+      saveDB();
+      startApp();
+    }
+
+    function register(event) {
+      event.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim().toLowerCase();
+      const phone = document.getElementById('regPhone').value.trim();
+      const pass = document.getElementById('regPass').value;
+
+      if (db.users.some(user => user.email === email)) {
+        toast('Este e-mail já está cadastrado.');
+        return;
+      }
+
+      const user = {
+        id: uid(),
+        name,
+        email,
+        phone,
+        pass,
+        admin: false
+      };
+
+      db.users.push(user);
+      db.current = user.id;
+      saveDB();
+      startApp();
+      toast(`Conta criada com sucesso: ${user.name}`);
+    }
+
+    function logout() {
+      db.current = null;
+      saveDB();
+      document.getElementById('authView').classList.remove('hidden');
+      document.getElementById('appView').classList.add('hidden');
+      showAuth('login');
+      document.getElementById('loginForm').reset();
+      document.getElementById('registerForm').reset();
+    }
+
+    function startApp() {
+      const user = currentUser();
+      if (!user) {
+        logout();
+        return;
+      }
+
+      document.getElementById('authView').classList.add('hidden');
+      document.getElementById('appView').classList.remove('hidden');
+
+      const initials = (user.name || 'U').split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
+      document.getElementById('sidebarAvatar').textContent = initials;
+      document.getElementById('sidebarUserName').textContent = user.name || 'Usuário';
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.page === (location.hash.replace('#', '') || 'home'));
+      });
+
+      navigate(location.hash.replace('#', '') || 'home');
+    }
+
+    function navigate(page) {
+      const allowed = ['home', 'buy', 'rent', 'publish', 'favorites', 'messages', 'profile', 'admin'];
+      if (!allowed.includes(page)) page = 'home';
+      location.hash = page;
+      const navBtns = document.querySelectorAll('.nav-btn');
+      navBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.page === page));
+
+      const container = document.getElementById('pageContent');
+      if (page === 'home') renderHome(container);
+      if (page === 'buy') renderCatalog(container, 'sale');
+      if (page === 'rent') renderCatalog(container, 'rent');
+      if (page === 'publish') renderPublish(container);
+      if (page === 'favorites') renderFavorites(container);
+      if (page === 'messages') renderMessages(container);
+      if (page === 'profile') renderProfile(container);
+      if (page === 'admin') renderAdmin(container);
+    }
+
+    function renderHome(container) {
+      const items = db.posts.filter(p => p.status === 'active').sort((a, b) => b.created - a.created).slice(0, 8);
+      container.innerHTML = `
+        <section class="hero">
+          <h1>Encontre. Venda. Alugue.</h1>
+          <p>Uma plataforma moderna para explorar imóveis, veículos, eletrônicos e muito mais com segurança e praticidade.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" type="button" onclick="navigate('publish')">+ Publicar anúncio</button>
+            <button class="btn btn-soft" type="button" onclick="navigate('buy')">Explorar compras</button>
+          </div>
+          <div class="hero-search">
+            <input id="heroQuery" class="search-field" type="text" placeholder="O que você procura?" />
+            <select id="heroType" class="search-field">
+              <option value="">Todos</option>
+              <option value="sale">Venda</option>
+              <option value="rent">Aluguel</option>
+            </select>
+            <button class="btn btn-primary" type="button" onclick="runGlobalSearch()">Buscar</button>
+          </div>
+        </section>
+
+        <div class="section-head">
+          <h2>Publicações recentes</h2>
+          <button class="btn btn-ghost" type="button" onclick="navigate('buy')">Ver todas</button>
+        </div>
+
+        <div class="grid">
+          ${items.length ? items.map(cardMarkup).join('') : '<div class="empty" style="grid-column:1 / -1;">Nenhum anúncio encontrado.</div>'}
+        </div>
+      `;
+    }
+
+    function renderCatalog(container, type) {
+      const activeType = type || 'sale';
+      const posts = db.posts.filter(post => post.status === 'active' && (!type || post.type === type));
+      container.innerHTML = `
+        <div class="section-head">
+          <h2>${type === 'sale' ? 'Comprar' : 'Alugar'}</h2>
+          <button class="btn btn-primary" type="button" onclick="navigate('publish')">+ Publicar</button>
+        </div>
+
+        <div class="panel">
+          <div class="chip-row" style="margin-bottom: 12px;">
+            ${['Veículos','Imóveis','Eletrônicos','Móveis','Ferramentas','Roupas','Bicicletas','Outros'].map(cat => `<button class="chip" type="button" data-cat="${cat}" onclick="filterByCategory('${cat}', '${type}')">${cat}</button>`).join('')}
+          </div>
+
+          <div class="form-grid" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+            <div class="field">
+              <label>Buscar</label>
+              <input id="filterQuery" type="text" placeholder="Palavra-chave" />
+            </div>
+            <div class="field">
+              <label>Preço max.</label>
+              <input id="filterMax" type="number" min="0" placeholder="Ex.: 5000" />
+            </div>
+            <div class="field">
+              <label>Cidade</label>
+              <input id="filterCity" type="text" placeholder="Ex.: Joinville" />
+            </div>
+            <div class="field" style="display:flex;align-items:end;">
+              <button class="btn btn-primary" type="button" onclick="applyFilters('${type}')">Filtrar</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="catalogGrid" class="grid" style="margin-top:18px;">
+          ${posts.length ? posts.map(cardMarkup).join('') : '<div class="empty" style="grid-column:1 / -1;">Nenhum anúncio encontrado no momento.</div>'}
+        </div>
+      `;
+    }
+
+    function applyFilters(type) {
+      const query = (document.getElementById('filterQuery')?.value || '').toLowerCase();
+      const max = Number(document.getElementById('filterMax')?.value || 0) || Infinity;
+      const city = (document.getElementById('filterCity')?.value || '').toLowerCase();
+      const activeCat = document.querySelector('.chip.active')?.dataset.cat || '';
+
+      const filtered = db.posts.filter(post => {
+        const matchesType = !type || post.type === type;
+        const matchesStatus = post.status === 'active';
+        const matchesCat = !activeCat || post.cat === activeCat;
+        const matchesPrice = Number(post.price) <= max;
+        const matchesCity = !city || post.city.toLowerCase().includes(city);
+        const haystack = `${post.title} ${post.desc} ${post.city} ${post.cat}`.toLowerCase();
+        const matchesQuery = !query || haystack.includes(query);
+        return matchesType && matchesStatus && matchesCat && matchesPrice && matchesCity && matchesQuery;
+      });
+
+      document.getElementById('catalogGrid').innerHTML = filtered.length ? filtered.map(cardMarkup).join('') : '<div class="empty" style="grid-column:1 / -1;">Nenhum anúncio encontrado para esses filtros.</div>';
+    }
+
+    function filterByCategory(cat, type) {
+      document.querySelectorAll('.chip').forEach(chip => chip.classList.toggle('active', chip.dataset.cat === cat));
+      applyFilters(type);
+    }
+
+    function renderPublish(container) {
+      container.innerHTML = `
+        <div class="section-head">
+          <h2>Publicar anúncio</h2>
+        </div>
+
+        <div class="panel">
+          <form class="form-grid" onsubmit="createPost(event)">
+            <div class="field">
+              <label>Tipo</label>
+              <select id="postType" onchange="toggleRentField()">
+                <option value="sale">Venda</option>
+                <option value="rent">Aluguel</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Categoria</label>
+              <select id="postCat">
+                <option>Veículos</option>
+                <option>Imóveis</option>
+                <option>Eletrônicos</option>
+                <option>Móveis</option>
+                <option>Ferramentas</option>
+                <option>Roupas</option>
+                <option>Bicicletas</option>
+                <option>Outros</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label>Título</label>
+              <input id="postTitle" maxlength="90" placeholder="Ex.: Honda Civic 2020" required />
+            </div>
+            <div class="field">
+              <label>Preço (R$)</label>
+              <input id="postPrice" type="number" min="0" step="0.01" required />
+            </div>
+            <div class="field" id="rentPeriodField" style="display:none;">
+              <label>Período</label>
+              <select id="postPeriod">
+                <option>dia</option>
+                <option>semana</option>
+                <option selected>mês</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Cidade</label>
+              <input id="postCity" placeholder="Ex.: Florianópolis - SC" required />
+            </div>
+            <div class="field full">
+              <label>Foto (opcional)</label>
+              <input id="postImage" type="file" accept="image/*" />
+            </div>
+            <div class="field full">
+              <label>Descrição</label>
+              <textarea id="postDesc" placeholder="Descreva o item, condições, vantagens e detalhes importantes." required></textarea>
+            </div>
+            <div class="field full">
+              <label style="display:flex;align-items:center;gap:8px;">
+                <input id="postWhatsapp" type="checkbox" checked />
+                Permitir contato por WhatsApp
+              </label>
+            </div>
+            <div class="field-row full">
+              <button class="btn btn-soft" type="button" onclick="navigate('home')">Cancelar</button>
+              <button class="btn btn-primary" type="submit">Publicar anúncio</button>
+            </div>
+          </form>
+        </div>
+      `;
+    }
+
+    function toggleRentField() {
+      const field = document.getElementById('rentPeriodField');
+      field.style.display = document.getElementById('postType').value === 'rent' ? 'block' : 'none';
+    }
+
+    async function createPost(event) {
+      event.preventDefault();
+      const user = currentUser();
+      if (!user) return;
+
+      const file = document.getElementById('postImage').files[0];
+      let image = '';
+
+      if (file && file.size > 2 * 1024 * 1024) {
+        toast('A imagem deve ter no máximo 2 MB.');
+        return;
+      }
+
+      if (file) {
+        image = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      const post = {
+        id: pid(),
+        owner: user.id,
+        type: document.getElementById('postType').value,
+        cat: document.getElementById('postCat').value,
+        title: document.getElementById('postTitle').value.trim(),
+        price: Number(document.getElementById('postPrice').value),
+        period: document.getElementById('postPeriod').value,
+        city: document.getElementById('postCity').value.trim(),
+        image,
+        desc: document.getElementById('postDesc').value.trim(),
+        status: 'active',
+        created: Date.now(),
+      };
+
+      db.posts.unshift(post);
+      saveDB();
+      toast('Anúncio publicado com sucesso!');
+      navigate('profile');
+    }
+
+    function renderFavorites(container) {
+      const posts = db.posts.filter(post => db.favorites.includes(post.id) && post.status === 'active');
+      container.innerHTML = `
+        <div class="section-head">
+          <h2>Meus favoritos</h2>
+        </div>
+        <div class="grid">
+          ${posts.length ? posts.map(cardMarkup).join('') : '<div class="empty" style="grid-column:1 / -1;">Você ainda não favoritou nenhum anúncio.</div>'}
+        </div>
+      `;
+    }
+
+    function renderMessages(container) {
+      const user = currentUser();
+      const messages = db.messages
+        .filter(m => m.from === user.id || m.to === user.id)
+        .sort((a, b) => b.created - a.created);
+
+      container.innerHTML = `
+        <div class="section-head">
+          <h2>Mensagens</h2>
+        </div>
+        <div class="list">
+          ${messages.length ? messages.map(messageMarkup).join('') : '<div class="empty">Você ainda não possui mensagens.</div>'}
+        </div>
+      `;
+    }
+
+    function messageMarkup(message) {
+      const user = currentUser();
+      const other = db.users.find(u => u.id === (message.from === user.id ? message.to : message.from));
+      const post = db.posts.find(p => p.id === message.post);
+      return `
+        <div class="list-item">
+          <div>
+            <strong>${message.from === user.id ? 'Você' : esc(other?.name || 'Usuário')}</strong>
+            <div class="small muted">${esc(post?.title || 'Anúncio')} • ${new Date(message.created).toLocaleString('pt-BR')}</div>
+            <div style="margin-top:8px;">${esc(message.text)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderProfile(container) {
+      const user = currentUser();
+      const mine = db.posts.filter(post => post.owner === user.id);
+      const isAdmin = user.admin;
+
+      container.innerHTML = `
+        <div class="section-head">
+          <h2>Meu perfil</h2>
+          ${isAdmin ? '<button class="btn btn-primary" type="button" onclick="navigate(\'admin\')">Painel administrativo</button>' : ''}
+        </div>
+
+        <div class="panel" style="margin-bottom:22px;">
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <div class="avatar" style="width:72px;height:72px;font-size:1.5rem;">${(user.name || 'U').split(' ').map(part => part[0]).slice(0,2).join('').toUpperCase()}</div>
+            <div>
+              <h3 style="margin:0;">${esc(user.name)}</h3>
+              <div class="muted">${esc(user.email)} • ${esc(user.phone || 'Sem telefone')}</div>
+              <div class="muted">ID: <strong>${esc(user.id)}</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <h2>Minhas publicações</h2>
+          <button class="btn btn-primary" type="button" onclick="navigate('publish')">+ Novo anúncio</button>
+        </div>
+        <div class="grid">
+          ${mine.length ? mine.map(cardMarkup).join('') : '<div class="empty" style="grid-column:1 / -1;">Você ainda não publicou nenhum anúncio.</div>'}
+        </div>
+      `;
+    }
+
+    function renderAdmin(container) {
+      const user = currentUser();
+      if (!user || !user.admin) {
+        navigate('home');
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="section-head">
+          <h2>Painel administrativo</h2>
+          <button class="btn btn-primary" type="button" onclick="exportData()">Exportar backup</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="label">Usuários</span>
+            <strong>${db.users.length}</strong>
+          </div>
+          <div class="stat-card">
+            <span class="label">Publicações</span>
+            <strong>${db.posts.length}</strong>
+          </div>
+          <div class="stat-card">
+            <span class="label">Ativas</span>
+            <strong>${db.posts.filter(p => p.status === 'active').length}</strong>
+          </div>
+          <div class="stat-card">
+            <span class="label">Mensagens</span>
+            <strong>${db.messages.length}</strong>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <h2>Usuários</h2>
+        </div>
+        <div class="list">
+          ${db.users.map(u => `
+            <div class="list-item">
+              <div>
+                <strong>${esc(u.name)}</strong>
+                <div class="small muted">${esc(u.email)} • ${esc(u.id)}</div>
+              </div>
+              <span class="tag">${u.admin ? 'Admin' : 'Usuário'}</span>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="section-head">
+          <h2>Publicações</h2>
+        </div>
+        <div class="list">
+          ${db.posts.map(post => `
+            <div class="list-item">
+              <div>
+                <strong>${esc(post.title)}</strong>
+                <div class="small muted">${esc(post.id)} • ${esc(post.city)}</div>
+              </div>
+              <button class="mini-btn danger" type="button" onclick="deletePost('${post.id}')">Excluir</button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function cardMarkup(post) {
+      const isFavorite = db.favorites.includes(post.id);
+      const user = currentUser();
+      const isOwner = user && post.owner === user.id;
+
+      return `
+        <article class="card">
+          <div class="media">
+            <span class="media-badge">${post.type === 'sale' ? 'Venda' : 'Aluguel'}</span>
+            ${getImageMarkup(post)}
+          </div>
+          <div class="card-content">
+            <div class="price-row">
+              <p class="price">${formatMoney(post.price)}${post.type === 'rent' ? `<small> / ${esc(post.period || 'mês')}</small>` : ''}</p>
+              <button class="mini-btn" type="button" onclick="toggleFavorite('${post.id}')">${isFavorite ? '★' : '☆'}</button>
+            </div>
+            <div class="title">${esc(post.title)}</div>
+            <div class="meta">📍 ${esc(post.city)} • ${esc(post.cat)}</div>
+            <div class="card-actions">
+              <button class="mini-btn primary" type="button" onclick="openDetails('${post.id}')">Detalhes</button>
+              ${isOwner ? `
+                <button class="mini-btn success" type="button" onclick="toggleListing('${post.id}')">${post.status === 'active' ? 'Pausar' : 'Ativar'}</button>
+                <button class="mini-btn" type="button" onclick="editPost('${post.id}')">Editar</button>
+              ` : ''}
+              ${isOwner || user?.admin ? `<button class="mini-btn danger" type="button" onclick="deletePost('${post.id}')">Excluir</button>` : ''}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function toggleFavorite(postId) {
+      if (db.favorites.includes(postId)) {
+        db.favorites = db.favorites.filter(id => id !== postId);
+        toast('Removido dos favoritos');
+      } else {
+        db.favorites.push(postId);
+        toast('Adicionado aos favoritos');
+      }
+      saveDB();
+      const page = location.hash.replace('#', '') || 'home';
+      if (page === 'favorites') navigate('favorites');
+      else if (page === 'home') renderHome(document.getElementById('pageContent'));
+      else if (page === 'buy' || page === 'rent') renderCatalog(document.getElementById('pageContent'), page === 'buy' ? 'sale' : 'rent');
+    }
+
+    function openDetails(postId) {
+      const post = db.posts.find(p => p.id === postId);
+      if (!post) return;
+      const owner = db.users.find(u => u.id === post.owner);
+
+      document.getElementById('modalTitle').textContent = post.title;
+      document.getElementById('modalBody').innerHTML = `
+        <div class="detail-layout">
+          <div>
+            <div class="detail-media">${getImageMarkup(post)}</div>
+          </div>
+          <div>
+            <div class="detail-meta">
+              <span class="tag">${post.type === 'sale' ? 'Venda' : 'Aluguel'}</span>
+              <span class="tag">${esc(post.cat)}</span>
+            </div>
+            <div class="detail-price">${formatMoney(post.price)}${post.type === 'rent' ? ` / ${esc(post.period || 'mês')}` : ''}</div>
+            <p class="muted">📍 ${esc(post.city)}</p>
+            <p>${esc(post.desc)}</p>
+            <div class="panel" style="margin-top:12px;">
+              <strong>Anunciante</strong>
+              <p style="margin:8px 0 0;">${esc(owner?.name || 'Usuário')}<br>${esc(owner?.phone || 'Telefone não informado')}</p>
+            </div>
+            <div class="field-row" style="justify-content:flex-start; margin-top:18px;">
+              <button class="btn btn-ghost" type="button" onclick="toggleFavorite('${post.id}')">${db.favorites.includes(post.id) ? 'Remover favorito' : 'Favoritar'}</button>
+              <button class="btn btn-primary" type="button" onclick="sendMessage('${post.id}')">Enviar mensagem</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+    }
+
+    function sendMessage(postId) {
+      const user = currentUser();
+      const post = db.posts.find(p => p.id === postId);
+      if (!post) return;
+      if (post.owner === user.id) {
+        toast('Este anúncio é seu.');
+        return;
+      }
+
+      const text = prompt('Escreva sua mensagem:', 'Olá, tenho interesse neste anúncio.');
+      if (!text) return;
+
+      db.messages.push({
+        id: `MSG-${Date.now()}`,
+        from: user.id,
+        to: post.owner,
+        post: postId,
+        text,
+        created: Date.now(),
+        read: false
+      });
+      saveDB();
+      closeModal();
+      toast('Mensagem enviada com sucesso!');
+      navigate('messages');
+    }
+
+    function editPost(postId) {
+      const user = currentUser();
+      const post = db.posts.find(p => p.id === postId);
+      if (!post || !user || post.owner !== user.id) return;
+
+      document.getElementById('modalTitle').textContent = 'Editar anúncio';
+      document.getElementById('modalBody').innerHTML = `
+        <form onsubmit="saveEdit(event,'${post.id}')">
+          <div class="form-grid">
+            <div class="field full">
+              <label>Título</label>
+              <input id="editTitle" value="${esc(post.title)}" required />
+            </div>
+            <div class="field">
+              <label>Preço</label>
+              <input id="editPrice" type="number" min="0" step="0.01" value="${Number(post.price)}" required />
+            </div>
+            <div class="field">
+              <label>Cidade</label>
+              <input id="editCity" value="${esc(post.city)}" required />
+            </div>
+            <div class="field full">
+              <label>URL da imagem</label>
+              <input id="editImage" value="${esc(post.image || '')}" />
+            </div>
+            <div class="field full">
+              <label>Descrição</label>
+              <textarea id="editDesc" required>${esc(post.desc)}</textarea>
+            </div>
+          </div>
+          <div class="field-row">
+            <button class="btn btn-soft" type="button" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-primary" type="submit">Salvar</button>
+          </div>
+        </form>
+      `;
+      document.getElementById('modal').classList.remove('hidden');
+    }
+
+    function saveEdit(event, postId) {
+      event.preventDefault();
+      const post = db.posts.find(p => p.id === postId);
+      if (!post) return;
+
+      post.title = document.getElementById('editTitle').value.trim();
+      post.price = Number(document.getElementById('editPrice').value);
+      post.city = document.getElementById('editCity').value.trim();
+      post.image = document.getElementById('editImage').value.trim();
+      post.desc = document.getElementById('editDesc').value.trim();
+
+      saveDB();
+      closeModal();
+      toast('Anúncio atualizado.');
+      navigate('profile');
+    }
+
+    function toggleListing(postId) {
+      const user = currentUser();
+      const post = db.posts.find(p => p.id === postId);
+      if (!post || !user || post.owner !== user.id) return;
+      post.status = post.status === 'active' ? 'paused' : 'active';
+      saveDB();
+      toast(post.status === 'active' ? 'Anúncio ativado.' : 'Anúncio pausado.');
+      navigate('profile');
+    }
+
+    function deletePost(postId) {
+      const user = currentUser();
+      const post = db.posts.find(p => p.id === postId);
+      if (!post || !user) return;
+      const canDelete = post.owner === user.id || user.admin;
+      if (!canDelete) {
+        toast('Você não tem permissão para excluir este anúncio.');
+        return;
+      }
+
+      if (!confirm('Deseja realmente excluir esta publicação?')) return;
+
+      db.posts = db.posts.filter(p => p.id !== postId);
+      db.favorites = db.favorites.filter(id => id !== postId);
+      db.messages = db.messages.filter(m => m.post !== postId);
+
+      saveDB();
+      toast('Publicação excluída.');
+      navigate(user.admin ? 'admin' : 'profile');
+    }
+
+    function exportData() {
+      const backup = JSON.stringify({ ...db, current: null }, null, 2);
+      const blob = new Blob([backup], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'compra-alquila-backup.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('Backup exportado com sucesso.');
+    }
+
+    function runGlobalSearch() {
+      const query = document.getElementById('heroQuery')?.value || '';
+      const type = document.getElementById('heroType')?.value || '';
+      const target = type === 'sale' ? 'buy' : type === 'rent' ? 'rent' : 'home';
+      if (target === 'home') {
+        const container = document.getElementById('pageContent');
+        const items = db.posts.filter(post => post.status === 'active' && (!query || `${post.title} ${post.desc} ${post.city} ${post.cat}`.toLowerCase().includes(query.toLowerCase())));
+        container.innerHTML = `
+          <section class="hero">
+            <h1>Encontre. Venda. Alugue.</h1>
+            <p>Uma plataforma moderna para explorar imóveis, veículos, eletrônicos e muito mais com segurança e praticidade.</p>
+            <div class="hero-search">
+              <input id="heroQuery2" class="search-field" type="text" value="${esc(query)}" placeholder="O que você procura?" />
+              <select id="heroType2" class="search-field">
+                <option value="" ${!type ? 'selected' : ''}>Todos</option>
+                <option value="sale" ${type === 'sale' ? 'selected' : ''}>Venda</option>
+                <option value="rent" ${type === 'rent' ? 'selected' : ''}>Aluguel</option>
+              </select>
+              <button class="btn btn-primary" type="button" onclick="runGlobalSearch()">Buscar</button>
+            </div>
+          </section>
+          <div class="section-head"><h2>Resultados</h2></div>
+          <div class="grid">${items.length ? items.map(cardMarkup).join('') : '<div class="empty" style="grid-column:1 / -1;">Nenhum resultado encontrado.</div>'}</div>
+        `;
+      } else {
+        navigate(target);
+      }
+    }
+
+    document.querySelectorAll('.nav-btn').forEach(button => {
+      button.addEventListener('click', () => navigate(button.dataset.page));
+    });
+
+    document.getElementById('loginTab').addEventListener('click', () => showAuth('login'));
+    document.getElementById('registerTab').addEventListener('click', () => showAuth('register'));
+    document.getElementById('globalSearch').addEventListener('input', (event) => {
+      const q = event.target.value.trim();
+      if (!q) {
+        navigate('home');
+        return;
+      }
+      const matches = db.posts.filter(post => post.status === 'active' && `${post.title} ${post.desc} ${post.city} ${post.cat}`.toLowerCase().includes(q.toLowerCase()));
+      const container = document.getElementById('pageContent');
+      container.innerHTML = `
+        <div class="section-head"><h2>Busca rápida</h2></div>
+        <div class="grid">${matches.length ? matches.map(cardMarkup).join('') : '<div class="empty" style="grid-column:1 / -1;">Nenhum produto encontrado para sua busca.</div>'}</div>
+      `;
+    });
+
+    window.addEventListener('hashchange', () => {
+      if (db.current) {
+        const page = location.hash.replace('#', '') || 'home';
+        if (['home', 'buy', 'rent', 'publish', 'favorites', 'messages', 'profile', 'admin'].includes(page)) {
+          navigate(page);
+        }
+      }
+    });
+
+    ensureSeed();
+    if (db.current) startApp();
+    else {
+      document.getElementById('authView').classList.remove('hidden');
+      showAuth('login');
+    }
+  </script>
+</body>
+</html>
